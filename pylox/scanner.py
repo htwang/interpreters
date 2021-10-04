@@ -59,6 +59,12 @@ class Scanner:
                     self._advance()
             else:
                 self._add_token(TokenType.SLASH)
+        elif c == '"':
+            self._string()
+        elif c == "\n":
+            self._line += 1
+        elif c in [" ", "\r", "\t"]:
+            return
         else:
             error(self._line, f"Unexpected charactor {c}.")
 
@@ -83,6 +89,22 @@ class Scanner:
         if self._is_at_end():
             return None
         return self._source_code[self._current]
+    
+    def _string(self) -> None:
+        while self._peek() != '"' and not self._is_at_end():
+            c = self._advance()
+            if c == "\n":
+                self._line += 1
+
+        if self._is_at_end():
+            error(self._line, "Untermindated string.")
+        
+        # consume closing "
+        self._advance()
+
+        # strip off the quotes
+        literal = self._source_code[self._start + 1:self._current - 1]
+        self._add_token_with_literal(TokenType.STRING, literal)
 
 
     def _add_token(self, ttype: TokenType) -> None:
