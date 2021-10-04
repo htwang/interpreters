@@ -177,7 +177,7 @@ class Scanner:
 
     def _add_token(self, ttype: TokenType) -> None:
         self._add_token_with_literal(ttype, None)
-    
+
     def _add_token_with_literal(self, ttype: TokenType, literal: Any) -> None:
         lexeme = self._source_code[self._start:self._current]
         self._tokens.append(Token(ttype=ttype, lexeme=lexeme, literal=literal, line=self._line))
