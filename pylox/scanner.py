@@ -4,6 +4,25 @@ from typing import List, Any, Optional
 from error import error
 
 class Scanner:
+    
+    KEY_WORDS = {
+        "and": TokenType.AND,
+        "class": TokenType.CLASS,
+        "else": TokenType.ELSE,
+        "false": TokenType.FALSE,
+        "fun": TokenType.FUN,
+        "for": TokenType.FOR,
+        "if": TokenType.IF,
+        "nil": TokenType.NIL,
+        "or": TokenType.OR,
+        "print": TokenType.PRINT,
+        "return": TokenType.RETURN,
+        "super": TokenType.SUPER,
+        "this": TokenType.THIS,
+        "true": TokenType.TRUE,
+        "var": TokenType.VAR,
+        "while": TokenType.WHILE,
+    }
 
     def __init__(self, source_code: str) -> None:
         self._source_code = source_code
@@ -20,7 +39,8 @@ class Scanner:
             # we are at the beginning of the next lexeme
             self._start = self._current
             self._scan()
-
+        
+        self._add_eof_token()
         return self._tokens
     
     def _scan(self) -> None:
@@ -63,6 +83,8 @@ class Scanner:
             self._string()
         elif c.isdigit():
             self._number()
+        elif self._isalpha_or_underscore(c):
+            self._identifier()
         elif c == "\n":
             self._line += 1
         elif c in [" ", "\r", "\t"]:
@@ -96,6 +118,14 @@ class Scanner:
         if self._current + 1 >= len(self._source_code):
             return None
         return self._source_code[self._current + 1]
+
+    @staticmethod
+    def _isalpha_or_underscore(c: str) -> bool:
+        return c == "_" or c.isalpha()
+
+    @staticmethod
+    def _isalnum_or_underscore(c: str) -> bool:
+        return c == "_" or c.isalnum()
 
     def _string(self) -> None:
         while self._peek() != '"' and not self._is_at_end():
@@ -134,10 +164,24 @@ class Scanner:
 
         literal = float(self._source_code[self._start: self._current])
         self._add_token_with_literal(TokenType.NUMBER, literal)
-            
+        
+    def _identifier(self) -> None:
+        c = self._peek()
+        while c is not None and self._isalnum_or_underscore(c):
+            self._advance()
+            c = self._peek()
+        
+        lexeme = self._source_code[self._start:self._current]
+        token_type = self.KEY_WORDS.get(lexeme) or TokenType.IDENTIFIER
+        self._add_token(token_type)
+
     def _add_token(self, ttype: TokenType) -> None:
         self._add_token_with_literal(ttype, None)
-
+    
     def _add_token_with_literal(self, ttype: TokenType, literal: Any) -> None:
         lexeme = self._source_code[self._start:self._current]
         self._tokens.append(Token(ttype=ttype, lexeme=lexeme, literal=literal, line=self._line))
+
+    def _add_eof_token(self) -> None:
+        self._tokens.append(Token(ttype=TokenType.EOF, lexeme="", literal=None, line=self._line))
+
