@@ -45,6 +45,14 @@ class Scanner:
             self._add_token(TokenType.SEMICOLON)
         elif c == "*":
             self._add_token(TokenType.STAR)
+        elif c == "!":
+            self._add_token(TokenType.BANG_EQUAL if self._match("=") else TokenType.BANG)
+        elif c == "=":
+            self._add_token(TokenType.EQUAL_EQUAL if self._match("=") else TokenType.EQUAL)
+        elif c == ">":
+            self._add_token(TokenType.GREATER_EQUAL if self._match("=") else TokenType.GREATER)
+        elif c == "<":
+            self._add_token(TokenType.LESS_EQUAL if self._match("=") else TokenType.LESS)
         else:
             error(self._line, f"Unexpected charactor {c}.")
 
@@ -55,6 +63,15 @@ class Scanner:
         c = self._source_code[self._current]
         self._current += 1
         return c
+
+    def _match(self, expected: str) -> bool:
+        if self._is_at_end():
+            return False
+        c = self._source_code[self._current]
+        if c == expected:
+            self._current += 1
+            return True
+        return False
 
     def _add_token(self, ttype: TokenType) -> None:
         self._add_token_with_literal(ttype, None)
