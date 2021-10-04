@@ -61,6 +61,8 @@ class Scanner:
                 self._add_token(TokenType.SLASH)
         elif c == '"':
             self._string()
+        elif c.isdigit():
+            self._number()
         elif c == "\n":
             self._line += 1
         elif c in [" ", "\r", "\t"]:
@@ -90,6 +92,11 @@ class Scanner:
             return None
         return self._source_code[self._current]
     
+    def _peek_next(self) -> Optional[str]:
+        if self._current + 1 >= len(self._source_code):
+            return None
+        return self._source_code[self._current + 1]
+
     def _string(self) -> None:
         while self._peek() != '"' and not self._is_at_end():
             c = self._advance()
@@ -106,7 +113,28 @@ class Scanner:
         literal = self._source_code[self._start + 1:self._current - 1]
         self._add_token_with_literal(TokenType.STRING, literal)
 
+    def _number(self) -> None:
+        c = self._peek()
+        while c is not None and c.isdigit():
+            self._advance()
+            c = self._peek()
+        
+        c = self._peek()
+        cx = self._peek_next()
 
+        if c == "." and cx is not None and cx.isdigit():
+            # consume the dot
+            self._advance()
+
+            c = self._peek()
+            while c is not None and c.isdigit():
+                self._advance()
+                c = self._peek()
+        
+
+        literal = float(self._source_code[self._start: self._current])
+        self._add_token_with_literal(TokenType.NUMBER, literal)
+            
     def _add_token(self, ttype: TokenType) -> None:
         self._add_token_with_literal(ttype, None)
 
