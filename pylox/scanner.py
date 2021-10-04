@@ -1,6 +1,6 @@
 from lox_token import Token
 from token_type import TokenType
-from typing import List, Any
+from typing import List, Any, Optional
 from error import error
 
 class Scanner:
@@ -53,6 +53,12 @@ class Scanner:
             self._add_token(TokenType.GREATER_EQUAL if self._match("=") else TokenType.GREATER)
         elif c == "<":
             self._add_token(TokenType.LESS_EQUAL if self._match("=") else TokenType.LESS)
+        elif c == "/":
+            if self._match("/"):
+                while self._peek() != "\n" and not self._is_at_end():
+                    self._advance()
+            else:
+                self._add_token(TokenType.SLASH)
         else:
             error(self._line, f"Unexpected charactor {c}.")
 
@@ -72,6 +78,12 @@ class Scanner:
             self._current += 1
             return True
         return False
+
+    def _peek(self) -> Optional[str]:
+        if self._is_at_end():
+            return None
+        return self._source_code[self._current]
+
 
     def _add_token(self, ttype: TokenType) -> None:
         self._add_token_with_literal(ttype, None)
