@@ -1,8 +1,12 @@
 """ entry point of the python implementation of the lox language """
 
+from scanner import Scanner
 
 def _run(source_code: str) -> None:
-    print (source_code)
+    scanner = Scanner(source_code)
+    tokens = scanner.scan_tokens()
+    for t in tokens:
+        print(t)
 
 
 def run_from_file(file_name: str) -> None:
