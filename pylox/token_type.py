@@ -1,8 +1,9 @@
 from enum import Enum, unique
 
+
 @unique
 class TokenType(Enum):
-    """ the type of a token """
+    """the type of a token"""
 
     LEFT_PAREN = 1
     RIGHT_PAREN = 2
