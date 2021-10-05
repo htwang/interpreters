@@ -1,6 +1,7 @@
 import sys
 from runner import run_from_file, run_prompt
 
+
 def main() -> None:
     argc = len(sys.argv)
 
@@ -11,6 +12,7 @@ def main() -> None:
         run_from_file(sys.argv[1])
     else:
         run_prompt()
+
 
 if __name__ == "__main__":
     main()

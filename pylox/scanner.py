@@ -3,8 +3,9 @@ from token_type import TokenType
 from typing import List, Any, Optional
 from error import error
 
+
 class Scanner:
-    
+
     KEY_WORDS = {
         "and": TokenType.AND,
         "class": TokenType.CLASS,
@@ -34,15 +35,15 @@ class Scanner:
         """ the current line number of the source code """
         self._tokens = []
 
-    def scan_tokens(self) -> List[Token]: 
+    def scan_tokens(self) -> List[Token]:
         while not self._is_at_end():
             # we are at the beginning of the next lexeme
             self._start = self._current
             self._scan()
-        
+
         self._add_eof_token()
         return self._tokens
-    
+
     def _scan(self) -> None:
         c = self._advance()
         if c == "(":
@@ -66,13 +67,21 @@ class Scanner:
         elif c == "*":
             self._add_token(TokenType.STAR)
         elif c == "!":
-            self._add_token(TokenType.BANG_EQUAL if self._match("=") else TokenType.BANG)
+            self._add_token(
+                TokenType.BANG_EQUAL if self._match("=") else TokenType.BANG
+            )
         elif c == "=":
-            self._add_token(TokenType.EQUAL_EQUAL if self._match("=") else TokenType.EQUAL)
+            self._add_token(
+                TokenType.EQUAL_EQUAL if self._match("=") else TokenType.EQUAL
+            )
         elif c == ">":
-            self._add_token(TokenType.GREATER_EQUAL if self._match("=") else TokenType.GREATER)
+            self._add_token(
+                TokenType.GREATER_EQUAL if self._match("=") else TokenType.GREATER
+            )
         elif c == "<":
-            self._add_token(TokenType.LESS_EQUAL if self._match("=") else TokenType.LESS)
+            self._add_token(
+                TokenType.LESS_EQUAL if self._match("=") else TokenType.LESS
+            )
         elif c == "/":
             if self._match("/"):
                 while self._peek() != "\n" and not self._is_at_end():
@@ -113,7 +122,7 @@ class Scanner:
         if self._is_at_end():
             return None
         return self._source_code[self._current]
-    
+
     def _peek_next(self) -> Optional[str]:
         if self._current + 1 >= len(self._source_code):
             return None
@@ -135,12 +144,12 @@ class Scanner:
 
         if self._is_at_end():
             error(self._line, "Untermindated string.")
-        
+
         # consume closing "
         self._advance()
 
         # strip off the quotes
-        literal = self._source_code[self._start + 1:self._current - 1]
+        literal = self._source_code[self._start + 1 : self._current - 1]
         self._add_token_with_literal(TokenType.STRING, literal)
 
     def _number(self) -> None:
@@ -148,7 +157,7 @@ class Scanner:
         while c is not None and c.isdigit():
             self._advance()
             c = self._peek()
-        
+
         c = self._peek()
         cx = self._peek_next()
 
@@ -160,18 +169,17 @@ class Scanner:
             while c is not None and c.isdigit():
                 self._advance()
                 c = self._peek()
-        
 
-        literal = float(self._source_code[self._start: self._current])
+        literal = float(self._source_code[self._start : self._current])
         self._add_token_with_literal(TokenType.NUMBER, literal)
-        
+
     def _identifier(self) -> None:
         c = self._peek()
         while c is not None and self._isalnum_or_underscore(c):
             self._advance()
             c = self._peek()
-        
-        lexeme = self._source_code[self._start:self._current]
+
+        lexeme = self._source_code[self._start : self._current]
         token_type = self.KEY_WORDS.get(lexeme) or TokenType.IDENTIFIER
         self._add_token(token_type)
 
@@ -179,9 +187,12 @@ class Scanner:
         self._add_token_with_literal(ttype, None)
 
     def _add_token_with_literal(self, ttype: TokenType, literal: Any) -> None:
-        lexeme = self._source_code[self._start:self._current]
-        self._tokens.append(Token(ttype=ttype, lexeme=lexeme, literal=literal, line=self._line))
+        lexeme = self._source_code[self._start : self._current]
+        self._tokens.append(
+            Token(ttype=ttype, lexeme=lexeme, literal=literal, line=self._line)
+        )
 
     def _add_eof_token(self) -> None:
-        self._tokens.append(Token(ttype=TokenType.EOF, lexeme="", literal=None, line=self._line))
-
+        self._tokens.append(
+            Token(ttype=TokenType.EOF, lexeme="", literal=None, line=self._line)
+        )
