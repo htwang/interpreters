@@ -1,7 +1,8 @@
+from typing import Any, List, Optional
+
+from error import error
 from lox_token import Token
 from token_type import TokenType
-from typing import List, Any, Optional
-from error import error
 
 
 class Scanner:
