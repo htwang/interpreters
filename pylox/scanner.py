@@ -110,15 +110,6 @@ class Scanner:
         self._current += 1
         return c
 
-    def _match(self, expected: str) -> bool:
-        if self._is_at_end():
-            return False
-        c = self._source_code[self._current]
-        if c == expected:
-            self._current += 1
-            return True
-        return False
-
     def _peek(self) -> Optional[str]:
         if self._is_at_end():
             return None
@@ -128,6 +119,13 @@ class Scanner:
         if self._current + 1 >= len(self._source_code):
             return None
         return self._source_code[self._current + 1]
+
+    def _match(self, expected: str) -> bool:
+        c = self._peek()
+        if c is None or c != expected:
+            return False
+        self._advance()
+        return True
 
     @staticmethod
     def _isalpha_or_underscore(c: str) -> bool:
