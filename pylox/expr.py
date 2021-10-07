@@ -1,8 +1,7 @@
 """ class that models expressions """
 import abc
 from dataclasses import dataclass
-
-from typeing import Any
+from typing import Any
 
 from lox_token import Token
 
