@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Optional
 
 from token_type import TokenType
 
@@ -8,5 +8,5 @@ from token_type import TokenType
 class Token:
     ttype: TokenType
     lexeme: str
-    literal: Any
-    line: int
+    literal: Optional[Any] = None
+    line: int = 1
