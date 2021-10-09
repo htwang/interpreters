@@ -32,7 +32,7 @@ class Scanner:
         """ start of an lexeme """
         self._current = 0
         """ the current char under the cursor """
-        self._line = 0
+        self._line = 1
         """ the current line number of the source code """
         self._tokens = []
 
