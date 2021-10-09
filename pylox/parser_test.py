@@ -1,7 +1,7 @@
 import unittest
 from parser import Parser
 
-from expr import BinaryExpr, LiteralExpr, UnaryExpr
+from expr import BinaryExpr, GroupExpr, LiteralExpr, UnaryExpr
 from lox_token import Token
 from scanner import Scanner
 from token_type import TokenType
@@ -166,6 +166,59 @@ class ParserTest(unittest.TestCase):
             ),
         )
 
+        self._test_expected(expectation)
+
+    def test_group_expr(self) -> None:
+        expectation = [
+            ("(1)", GroupExpr(expr=LiteralExpr(value=1))),
+        ]
+        self._test_expected(expectation)
+
+    def test_expr_precedence(self) -> None:
+        expectation = [
+            (
+                "2==1<1+2*-3",
+                BinaryExpr(
+                    left=LiteralExpr(value=2),
+                    op=Token(ttype=TokenType.EQUAL_EQUAL, lexeme="=="),
+                    right=BinaryExpr(
+                        left=LiteralExpr(value=1),
+                        op=Token(ttype=TokenType.LESS, lexeme="<"),
+                        right=BinaryExpr(
+                            left=LiteralExpr(value=1),
+                            op=Token(ttype=TokenType.PLUS, lexeme="+"),
+                            right=BinaryExpr(
+                                left=LiteralExpr(value=2),
+                                op=Token(ttype=TokenType.STAR, lexeme="*"),
+                                right=UnaryExpr(
+                                    op=Token(ttype=TokenType.MINUS, lexeme="-"),
+                                    right=LiteralExpr(value=3),
+                                ),
+                            ),
+                        ),
+                    ),
+                ),
+            )
+        ]
+        self._test_expected(expectation)
+
+    def test_group_override_precedence(self) -> None:
+        expectation = [
+            (
+                "(1+2)*3",
+                BinaryExpr(
+                    left=GroupExpr(
+                        expr=BinaryExpr(
+                            left=LiteralExpr(value=1),
+                            op=Token(ttype=TokenType.PLUS, lexeme="+"),
+                            right=LiteralExpr(value=2),
+                        )
+                    ),
+                    op=Token(ttype=TokenType.STAR, lexeme="*"),
+                    right=LiteralExpr(value=3),
+                ),
+            )
+        ]
         self._test_expected(expectation)
 
     def _test_expected(self, expectation) -> None:
