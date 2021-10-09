@@ -1,7 +1,7 @@
 import unittest
 from parser import Parser
 
-from expr import LiteralExpr, UnaryExpr
+from expr import BinaryExpr, LiteralExpr, UnaryExpr
 from lox_token import Token
 from scanner import Scanner
 from token_type import TokenType
@@ -34,6 +34,7 @@ class ParserTest(unittest.TestCase):
                     right=LiteralExpr(value="a"),
                 ),
             ),
+            # test associativity
             (
                 "!-1",
                 UnaryExpr(
@@ -45,6 +46,126 @@ class ParserTest(unittest.TestCase):
                 ),
             ),
         ]
+        self._test_expected(expectation)
+
+    def test_parse_factor_expr(self) -> None:
+        expectation = [
+            (
+                "1*2",
+                BinaryExpr(
+                    left=LiteralExpr(value=1),
+                    op=Token(ttype=TokenType.STAR, lexeme="*"),
+                    right=LiteralExpr(value=2),
+                ),
+            ),
+            # test associativity
+            (
+                "1*2/3",
+                BinaryExpr(
+                    left=BinaryExpr(
+                        left=LiteralExpr(value=1),
+                        op=Token(ttype=TokenType.STAR, lexeme="*"),
+                        right=LiteralExpr(value=2),
+                    ),
+                    op=Token(ttype=TokenType.SLASH, lexeme="/"),
+                    right=LiteralExpr(value=3),
+                ),
+            ),
+        ]
+        self._test_expected(expectation)
+
+    def test_parse_term_expr(self) -> None:
+        expectation = [
+            (
+                "1+2",
+                BinaryExpr(
+                    left=LiteralExpr(value=1),
+                    op=Token(ttype=TokenType.PLUS, lexeme="+"),
+                    right=LiteralExpr(value=2),
+                ),
+            ),
+            # test associativity
+            (
+                "1+2-3",
+                BinaryExpr(
+                    left=BinaryExpr(
+                        left=LiteralExpr(value=1),
+                        op=Token(ttype=TokenType.PLUS, lexeme="+"),
+                        right=LiteralExpr(value=2),
+                    ),
+                    op=Token(ttype=TokenType.MINUS, lexeme="-"),
+                    right=LiteralExpr(value=3),
+                ),
+            ),
+        ]
+        self._test_expected(expectation)
+
+    def test_equility_expr(self) -> None:
+        ops = [
+            Token(ttype=TokenType.LESS, lexeme="<"),
+            Token(ttype=TokenType.LESS_EQUAL, lexeme="<="),
+            Token(ttype=TokenType.GREATER, lexeme=">"),
+            Token(ttype=TokenType.GREATER_EQUAL, lexeme=">="),
+        ]
+
+        expectation = [
+            (
+                f"1{op.lexeme}2",
+                BinaryExpr(
+                    left=LiteralExpr(value=1), op=op, right=LiteralExpr(value=2)
+                ),
+            )
+            for op in ops
+        ]
+
+        # test associativity
+        expectation.append(
+            (
+                "1<2<=3",
+                BinaryExpr(
+                    left=BinaryExpr(
+                        left=LiteralExpr(value=1),
+                        op=Token(ttype=TokenType.LESS, lexeme="<"),
+                        right=LiteralExpr(value=2),
+                    ),
+                    op=Token(ttype=TokenType.LESS_EQUAL, lexeme="<="),
+                    right=LiteralExpr(value=3),
+                ),
+            ),
+        )
+        self._test_expected(expectation)
+
+    def test_equality_expr(self) -> None:
+        ops = [
+            Token(ttype=TokenType.BANG_EQUAL, lexeme="!="),
+            Token(ttype=TokenType.EQUAL_EQUAL, lexeme="=="),
+        ]
+
+        expectation = [
+            (
+                f"1{op.lexeme}2",
+                BinaryExpr(
+                    left=LiteralExpr(value=1), op=op, right=LiteralExpr(value=2)
+                ),
+            )
+            for op in ops
+        ]
+        # test associativity
+        expectation.append(
+            (
+                "1!=2==3",
+                BinaryExpr(
+                    left=BinaryExpr(
+                        left=LiteralExpr(value=1),
+                        op=Token(ttype=TokenType.BANG_EQUAL, lexeme="!="),
+                        right=LiteralExpr(value=2),
+                    ),
+                    op=Token(ttype=TokenType.EQUAL_EQUAL, lexeme="=="),
+                    right=LiteralExpr(value=3),
+                ),
+            ),
+        )
+
         self._test_expected(expectation)
 
     def _test_expected(self, expectation) -> None:
