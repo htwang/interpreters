@@ -56,10 +56,7 @@ class _Interpreter(ExprVisitor):
     def _truthy(self, value: Any) -> bool:
         if isinstance(value, bool):
             return value
-        elif value is None:
-            return False
-        else:
-            return True
+        return value is not None
 
 
 def interpret(expr: Expr) -> Any:
