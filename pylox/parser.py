@@ -94,29 +94,29 @@ class Parser:
             self._expect(TokenType.RIGHT_PAREN, "Expect ')' after expression.")
             return GroupExpr(expr=expr)
 
-        self._error("Expect Expression")
+        raise self._error("Expect Expression")
 
-    def _error(self, msg: str) -> None:
+    def _error(self, msg: str) -> ParserError:
         token = self._peek()
         if token.ttype == TokenType.EOF:
             report(token.line, " at end", msg)
         else:
             report(token.line, f" at '{token.lexeme}'", msg)
-        raise ParserError()
+        return ParserError()
 
     def _expect(self, token_type: TokenType, msg: str) -> None:
         if not self._match(token_type):
-            self._error(msg)
+            raise self._error(msg)
 
-    def _previous(self) -> Expr:
+    def _previous(self) -> Token:
         return self._tokens[self._current - 1]
 
-    def _advance(self) -> Expr:
+    def _advance(self) -> Token:
         cur = self._tokens[self._current]
         self._current += 1
         return cur
 
-    def _peek(self) -> Expr:
+    def _peek(self) -> Token:
         return self._tokens[self._current]
 
     def _match(self, *token_types: TokenType) -> bool:

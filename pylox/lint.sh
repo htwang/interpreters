@@ -15,5 +15,8 @@ python3 -m isort --settings-path ./pyproject.toml .
 echo "running black"
 python3 -m black --config ./pyproject.toml .
 
+echo "running mypy"
+python3 -m mypy *.py
+
 echo "running pyflakes"
 python3 -m pyflakes *.py

@@ -34,7 +34,7 @@ class Scanner:
         """ the current char under the cursor """
         self._line = 1
         """ the current line number of the source code """
-        self._tokens = []
+        self._tokens: List[Token] = []
 
     def scan_tokens(self) -> List[Token]:
         while not self._is_at_end():
