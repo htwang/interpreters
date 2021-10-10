@@ -2,6 +2,7 @@
 
 from parser import Parser
 
+from interpreter import interpret
 from pretty_printer import pprint_expr
 from scanner import Scanner
 
@@ -13,6 +14,8 @@ def _run(source_code: str) -> None:
     expr = parser.parse()
     if expr is not None:
         print(pprint_expr(expr))
+        value = interpret(expr)
+        print(f"value = {value}")
     else:
         print(f"Failed to parse {source_code}")
 
