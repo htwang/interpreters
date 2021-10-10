@@ -9,8 +9,7 @@ source .venv/bin/activate
 
 pattern=$1
 
-if [[ -z ${pattern} ]]
-then
+if [[ -z ${pattern} ]]; then
     python3 -m unittest discover -v -p  "*_test.py"
 else
     python3 -m unittest discover -v -p  "*_test.py" -k ${pattern}
