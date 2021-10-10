@@ -11,7 +11,10 @@ def _run(source_code: str) -> None:
     tokens = scanner.scan_tokens()
     parser = Parser(tokens)
     expr = parser.parse()
-    print(pprint_expr(expr))
+    if expr is not None:
+        print(pprint_expr(expr))
+    else:
+        print(f"Failed to parse {source_code}")
 
 
 def run_from_file(file_name: str) -> None:
