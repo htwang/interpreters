@@ -7,4 +7,11 @@ cd $SCRIPT_DIR
 python3 -m venv .venv
 source .venv/bin/activate
 
-python3 -m unittest discover -v -p  "*_test.py"
+pattern=$1
+
+if [[ -z ${pattern} ]]; then
+    python3 -m unittest discover -v -p  "*_test.py"
+else
+    python3 -m unittest discover -v -p  "*_test.py" -k ${pattern}
+fi
+
