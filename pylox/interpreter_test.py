@@ -23,7 +23,7 @@ class InterpreterTest(unittest.TestCase):
         self.assertEqual(self._evaluate("1*2"), 2.0)
         self.assertEqual(self._evaluate("1/2"), 0.5)
         self.assertEqual(self._evaluate('"a"+"b"'), "ab")
-        self.assertEqual(self._evaluate('(1+2)*3'), 9.0)
+        self.assertEqual(self._evaluate("(1+2)*3"), 9.0)
 
     def _evaluate(self, source: str) -> Any:
         expr = Parser(Scanner(source).scan_tokens()).parse()
