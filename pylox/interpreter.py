@@ -1,3 +1,4 @@
+import itertools
 from dataclasses import dataclass
 from typing import Any
 
@@ -25,7 +26,7 @@ class _Interpreter(ExprVisitor):
 
         op_type = expr.op.ttype
         if op_type == TokenType.MINUS:
-            self._require_type(expr.op, float)
+            self._require_type(expr.op, float, right)
             return -1 * right
         elif op_type == TokenType.BANG:
             return not self._truthy(right)
@@ -79,9 +80,11 @@ class _Interpreter(ExprVisitor):
             return value
         return value is not None
 
-    def _require_type(self, token: Token, expected_type: type, *values: Any) -> None:
-        for value in values:
-            if not isinstance(value, expected_type):
+    def _require_type(
+        self, token: Token, expected_type: type, value: Any, *more_values: Any
+    ) -> None:
+        for v in itertools.chain([value], more_values):
+            if not isinstance(v, expected_type):
                 raise self._runtime_error(
                     token,
                     f"type mismatched for {token.lexeme}, expected type is {expected_type}",
