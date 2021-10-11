@@ -25,6 +25,25 @@ class InterpreterTest(unittest.TestCase):
         self.assertEqual(self._evaluate('"a"+"b"'), "ab")
         self.assertEqual(self._evaluate("(1+2)*3"), 9.0)
 
+    def test_interpret_malformed(self) -> None:
+        self.assertIsNone(self._evaluate('1-"a"'))
+        self.assertIsNone(self._evaluate('1+"a"'))
+        self.assertIsNone(self._evaluate('1/"a"'))
+        self.assertIsNone(self._evaluate('1*"a"'))
+        self.assertIsNone(self._evaluate('1>"a"'))
+        self.assertIsNone(self._evaluate('1>="a"'))
+        self.assertIsNone(self._evaluate('1<"a"'))
+        self.assertIsNone(self._evaluate('1<="a"'))
+        self.assertIsNone(self._evaluate('-"a"'))
+        self.assertIsNone(self._evaluate('"a"-1'))
+        self.assertIsNone(self._evaluate('"a"+1'))
+        self.assertIsNone(self._evaluate('"a"/1'))
+        self.assertIsNone(self._evaluate('"a"*1'))
+        self.assertIsNone(self._evaluate('"a">1'))
+        self.assertIsNone(self._evaluate('"a">=1'))
+        self.assertIsNone(self._evaluate('"a"<1'))
+        self.assertIsNone(self._evaluate('"a"<=1'))
+
     def _evaluate(self, source: str) -> Any:
         expr = Parser(Scanner(source).scan_tokens()).parse()
         self.assertIsNotNone(expr)
