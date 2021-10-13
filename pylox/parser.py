@@ -1,8 +1,9 @@
-from typing import List, Optional
+from typing import List
 
 from error import report
 from expr import BinaryExpr, Expr, GroupExpr, LiteralExpr, UnaryExpr
 from lox_token import Token
+from stmt import ExprStmt, PrintStmt, Stmt
 from token_type import TokenType
 
 
@@ -15,11 +16,30 @@ class Parser:
         self._tokens = tokens
         self._current = 0
 
-    def parse(self) -> Optional[Expr]:
+    def parse(self) -> List[Stmt]:
+        stmts = []
         try:
-            return self._expression()
+            while not self._eof():
+                stmts.append(self._statement())
+            return stmts
         except ParserError:
-            return None
+            return []
+
+    def _statement(self) -> Stmt:
+        if self._match(TokenType.PRINT):
+            return self._print_stmt()
+
+        return self._expr_stmt()
+
+    def _print_stmt(self) -> Stmt:
+        expr = self._expression()
+        self._expect(TokenType.SEMICOLON, "Expect ; at the end of print statment")
+        return PrintStmt(expr=expr)
+
+    def _expr_stmt(self) -> Stmt:
+        expr = self._expression()
+        self._expect(TokenType.SEMICOLON, "Expect ; at the end of expression")
+        return ExprStmt(expr=expr)
 
     def _expression(self) -> Expr:
         return self._equility()

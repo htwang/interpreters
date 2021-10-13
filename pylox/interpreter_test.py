@@ -3,11 +3,14 @@ from parser import Parser
 from typing import Any, cast
 
 from expr import Expr
-from interpreter import interpret
+from interpreter import Interpreter, LoxRuntimeError
 from scanner import Scanner
 
 
 class InterpreterTest(unittest.TestCase):
+    def setUp(self):
+        self.interpreter = Interpreter()
+
     def test_interpret(self) -> None:
         self.assertEqual(self._evaluate("!true"), False)
         self.assertEqual(self._evaluate("!false"), True)
@@ -45,6 +48,9 @@ class InterpreterTest(unittest.TestCase):
         self.assertIsNone(self._evaluate('"a"<=1'))
 
     def _evaluate(self, source: str) -> Any:
-        expr = Parser(Scanner(source).scan_tokens()).parse()
-        self.assertIsNotNone(expr)
-        return interpret(cast(Expr, expr))
+        try:
+            expr = Parser(Scanner(source).scan_tokens())._expression()
+            self.assertIsNotNone(expr)
+            return self.interpreter._evaluate(cast(Expr, expr))
+        except LoxRuntimeError:
+            return None

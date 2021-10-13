@@ -1,10 +1,11 @@
 import itertools
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, List
 
 from error import error
 from expr import BinaryExpr, Expr, ExprVisitor, GroupExpr, LiteralExpr, UnaryExpr
 from lox_token import Token
+from stmt import ExprStmt, PrintStmt, Stmt, StmtVisitor
 from token_type import TokenType
 
 
@@ -14,7 +15,15 @@ class LoxRuntimeError(Exception):
     msg: str
 
 
-class _Interpreter(ExprVisitor):
+class Interpreter(ExprVisitor, StmtVisitor):
+    def interpret(self, stmts: List[Stmt]) -> None:
+        try:
+            for stmt in stmts:
+                self._execute(stmt)
+        except LoxRuntimeError as e:
+            error(e.token.line, e.msg)
+            return None
+
     def visit_literal(self, expr: LiteralExpr) -> Any:
         return expr.value
 
@@ -72,8 +81,18 @@ class _Interpreter(ExprVisitor):
         else:
             raise self._runtime_error(expr.op, f"Unsupported op {op_type}")
 
+    def visit_print(self, stmt: PrintStmt) -> None:
+        value = self._evaluate(stmt.expr)
+        print(value)
+
+    def visit_expr(self, stmt: ExprStmt) -> None:
+        self._evaluate(stmt.expr)
+
     def _evaluate(self, expr: Expr) -> Any:
         return expr.accept(self)
+
+    def _execute(self, stmt: Stmt) -> None:
+        stmt.accept(self)
 
     def _truthy(self, value: Any) -> bool:
         if isinstance(value, bool):
@@ -93,11 +112,3 @@ class _Interpreter(ExprVisitor):
     @staticmethod
     def _runtime_error(token: Token, msg: str) -> LoxRuntimeError:
         return LoxRuntimeError(token=token, msg=msg)
-
-
-def interpret(expr: Expr) -> Any:
-    try:
-        return expr.accept(_Interpreter())
-    except LoxRuntimeError as e:
-        error(e.token.line, e.msg)
-        return None
