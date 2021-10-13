@@ -17,13 +17,16 @@ class Parser:
         self._current = 0
 
     def parse(self) -> List[Stmt]:
-        stmts = []
         try:
-            while not self._eof():
-                stmts.append(self._statement())
-            return stmts
+            return self._program()
         except ParserError:
             return []
+
+    def _program(self) -> List[Stmt]:
+        stmts = []
+        while not self._eof():
+            stmts.append(self._statement())
+        return stmts
 
     def _statement(self) -> Stmt:
         if self._match(TokenType.PRINT):
