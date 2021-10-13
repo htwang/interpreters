@@ -224,5 +224,5 @@ class ParserTest(unittest.TestCase):
     def _test_expected(self, expectation) -> None:
         for text, expected in expectation:
             with self.subTest(msg=f"test parsing {text}"):
-                expr = Parser(Scanner(text).scan_tokens()).parse()
+                expr = Parser(Scanner(text).scan_tokens())._expression()
                 self.assertEqual(expr, expected)
