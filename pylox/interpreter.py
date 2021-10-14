@@ -1,18 +1,11 @@
 import itertools
-from dataclasses import dataclass
 from typing import Any, List
 
-from error import error
+from error import LoxRuntimeError, error
 from expr import BinaryExpr, Expr, ExprVisitor, GroupExpr, LiteralExpr, UnaryExpr
 from lox_token import Token
 from stmt import ExprStmt, PrintStmt, Stmt, StmtVisitor
 from token_type import TokenType
-
-
-@dataclass
-class LoxRuntimeError(Exception):
-    token: Token
-    msg: str
 
 
 class Interpreter(ExprVisitor, StmtVisitor):
