@@ -23,6 +23,10 @@ class ExprVisitor(abc.ABC):
     def visit_group(self, expr: "GroupExpr") -> Any:
         pass
 
+    @abc.abstractmethod
+    def visit_var(self, expr: "VarExpr") -> Any:
+        pass
+
 
 class Expr(abc.ABC):
     @abc.abstractmethod
@@ -63,3 +67,11 @@ class GroupExpr(Expr):
 
     def accept(self, expr_visitor: ExprVisitor) -> Any:
         return expr_visitor.visit_group(self)
+
+
+@dataclass
+class VarExpr(Expr):
+    token: Token
+
+    def accept(self, expr_visitor: ExprVisitor) -> Any:
+        return expr_visitor.visit_var(self)

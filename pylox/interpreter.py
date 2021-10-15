@@ -1,14 +1,26 @@
 import itertools
 from typing import Any, List
 
+from env import Environment
 from error import LoxRuntimeError, error
-from expr import BinaryExpr, Expr, ExprVisitor, GroupExpr, LiteralExpr, UnaryExpr
+from expr import (
+    BinaryExpr,
+    Expr,
+    ExprVisitor,
+    GroupExpr,
+    LiteralExpr,
+    UnaryExpr,
+    VarExpr,
+)
 from lox_token import Token
 from stmt import ExprStmt, PrintStmt, Stmt, StmtVisitor
 from token_type import TokenType
 
 
 class Interpreter(ExprVisitor, StmtVisitor):
+    def __init__(self) -> None:
+        self._env = Environment()
+
     def interpret(self, stmts: List[Stmt]) -> None:
         try:
             for stmt in stmts:
@@ -22,6 +34,9 @@ class Interpreter(ExprVisitor, StmtVisitor):
 
     def visit_group(self, expr: GroupExpr) -> Any:
         return self._evaluate(expr.expr)
+
+    def visit_var(self, expr: VarExpr) -> Any:
+        return self._env.get_value(expr.token)
 
     def visit_unary(self, expr: UnaryExpr) -> Any:
         right = self._evaluate(expr.right)

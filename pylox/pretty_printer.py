@@ -1,4 +1,12 @@
-from expr import BinaryExpr, Expr, ExprVisitor, GroupExpr, LiteralExpr, UnaryExpr
+from expr import (
+    BinaryExpr,
+    Expr,
+    ExprVisitor,
+    GroupExpr,
+    LiteralExpr,
+    UnaryExpr,
+    VarExpr,
+)
 
 
 class _PPrinter(ExprVisitor):
@@ -13,6 +21,9 @@ class _PPrinter(ExprVisitor):
 
     def visit_group(self, expr: GroupExpr) -> str:
         return self._parenthesize("group", expr.expr)
+
+    def visit_var(self, expr: VarExpr) -> str:
+        return expr.token.lexeme
 
     def _parenthesize(self, name: str, *exprs: Expr) -> str:
         result = f"({name}"
