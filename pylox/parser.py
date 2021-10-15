@@ -1,9 +1,9 @@
 from typing import List
 
 from error import report
-from expr import BinaryExpr, Expr, GroupExpr, LiteralExpr, UnaryExpr
+from expr import BinaryExpr, Expr, GroupExpr, LiteralExpr, UnaryExpr, VarExpr
 from lox_token import Token
-from stmt import ExprStmt, PrintStmt, Stmt
+from stmt import DeclStmt, ExprStmt, PrintStmt, Stmt
 from token_type import TokenType
 
 
@@ -29,10 +29,21 @@ class Parser:
         return stmts
 
     def _statement(self) -> Stmt:
-        if self._match(TokenType.PRINT):
+        if self._match(TokenType.VAR):
+            return self._declaration()
+        elif self._match(TokenType.PRINT):
             return self._print_stmt()
+        else:
+            return self._expr_stmt()
 
-        return self._expr_stmt()
+    def _declaration(self) -> Stmt:
+        token = self._expect(TokenType.IDENTIFIER, "expect identifier")
+        expr = None
+        if self._match(TokenType.EQUAL):
+            expr = self._expression()
+
+        self._expect(TokenType.SEMICOLON, "expect semicolon")
+        return DeclStmt(token=token, initializer=expr)
 
     def _print_stmt(self) -> Stmt:
         expr = self._expression()
@@ -109,6 +120,9 @@ class Parser:
         if self._match(TokenType.NIL):
             return LiteralExpr(value=None)
 
+        if self._match(TokenType.IDENTIFIER):
+            return VarExpr(token=self._previous())
+
         if self._match(TokenType.NUMBER, TokenType.STRING):
             return LiteralExpr(value=self._previous().literal)
 
@@ -127,9 +141,10 @@ class Parser:
             report(token.line, f" at '{token.lexeme}'", msg)
         return ParserError()
 
-    def _expect(self, token_type: TokenType, msg: str) -> None:
+    def _expect(self, token_type: TokenType, msg: str) -> Token:
         if not self._match(token_type):
             raise self._error(msg)
+        return self._previous()
 
     def _previous(self) -> Token:
         return self._tokens[self._current - 1]

@@ -13,7 +13,7 @@ from expr import (
     VarExpr,
 )
 from lox_token import Token
-from stmt import ExprStmt, PrintStmt, Stmt, StmtVisitor
+from stmt import DeclStmt, ExprStmt, PrintStmt, Stmt, StmtVisitor
 from token_type import TokenType
 
 
@@ -95,6 +95,10 @@ class Interpreter(ExprVisitor, StmtVisitor):
 
     def visit_expr(self, stmt: ExprStmt) -> None:
         self._evaluate(stmt.expr)
+
+    def visit_decl(self, stmt: DeclStmt) -> None:
+        value = None if stmt.initializer is None else self._evaluate(stmt.initializer)
+        self._env.define(stmt.token.lexeme, value)
 
     def _evaluate(self, expr: Expr) -> Any:
         return expr.accept(self)

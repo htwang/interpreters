@@ -12,8 +12,6 @@ class Environment:
         self._map[name] = value
 
     def get_value(self, token: Token) -> Any:
-        value = self._map[token.lexeme]
-        if value is not None:
-            return value
-
+        if token.lexeme in self._map:
+            return self._map[token.lexeme]
         raise LoxRuntimeError(token=token, msg=f"Undefined variable {token.lexeme}")
