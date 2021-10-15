@@ -1,21 +1,26 @@
 import itertools
-from dataclasses import dataclass
 from typing import Any, List
 
-from error import error
-from expr import BinaryExpr, Expr, ExprVisitor, GroupExpr, LiteralExpr, UnaryExpr
+from env import Environment
+from error import LoxRuntimeError, error
+from expr import (
+    BinaryExpr,
+    Expr,
+    ExprVisitor,
+    GroupExpr,
+    LiteralExpr,
+    UnaryExpr,
+    VarExpr,
+)
 from lox_token import Token
-from stmt import ExprStmt, PrintStmt, Stmt, StmtVisitor
+from stmt import DeclStmt, ExprStmt, PrintStmt, Stmt, StmtVisitor
 from token_type import TokenType
 
 
-@dataclass
-class LoxRuntimeError(Exception):
-    token: Token
-    msg: str
-
-
 class Interpreter(ExprVisitor, StmtVisitor):
+    def __init__(self) -> None:
+        self._env = Environment()
+
     def interpret(self, stmts: List[Stmt]) -> None:
         try:
             for stmt in stmts:
@@ -29,6 +34,9 @@ class Interpreter(ExprVisitor, StmtVisitor):
 
     def visit_group(self, expr: GroupExpr) -> Any:
         return self._evaluate(expr.expr)
+
+    def visit_var(self, expr: VarExpr) -> Any:
+        return self._env.get_value(expr.token)
 
     def visit_unary(self, expr: UnaryExpr) -> Any:
         right = self._evaluate(expr.right)
@@ -87,6 +95,10 @@ class Interpreter(ExprVisitor, StmtVisitor):
 
     def visit_expr(self, stmt: ExprStmt) -> None:
         self._evaluate(stmt.expr)
+
+    def visit_decl(self, stmt: DeclStmt) -> None:
+        value = None if stmt.initializer is None else self._evaluate(stmt.initializer)
+        self._env.define(stmt.token.lexeme, value)
 
     def _evaluate(self, expr: Expr) -> Any:
         return expr.accept(self)
