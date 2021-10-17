@@ -1,4 +1,5 @@
 from expr import (
+    AssignExpr,
     BinaryExpr,
     Expr,
     ExprVisitor,
@@ -24,6 +25,9 @@ class _PPrinter(ExprVisitor):
 
     def visit_var(self, expr: VarExpr) -> str:
         return expr.token.lexeme
+
+    def visit_assign(self, expr: AssignExpr) -> str:
+        return f"(= {expr.token.lexeme} {expr.expr.accept(self)})"
 
     def _parenthesize(self, name: str, *exprs: Expr) -> str:
         result = f"({name}"

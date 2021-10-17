@@ -4,6 +4,7 @@ from typing import Any, List
 from env import Environment
 from error import LoxRuntimeError, error
 from expr import (
+    AssignExpr,
     BinaryExpr,
     Expr,
     ExprVisitor,
@@ -28,6 +29,11 @@ class Interpreter(ExprVisitor, StmtVisitor):
         except LoxRuntimeError as e:
             error(e.token.line, e.msg)
             return None
+
+    def visit_assign(self, expr: AssignExpr) -> Any:
+        value = self._evaluate(expr.expr)
+        self._env.assign(expr.token, value)
+        return value
 
     def visit_literal(self, expr: LiteralExpr) -> Any:
         return expr.value
