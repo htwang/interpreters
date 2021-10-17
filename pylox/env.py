@@ -29,6 +29,6 @@ class Environment:
             return self._map[name]
 
         if self._enclosed is not None:
-            self._enclosed.get_value(token)
+            return self._enclosed.get_value(token)
         else:
             raise LoxRuntimeError(token=token, msg=f"Undefined variable {token.lexeme}")
