@@ -1,7 +1,7 @@
 """ class that models statements """
 import abc
 from dataclasses import dataclass
-from typing import Optional
+from typing import List, Optional
 
 from expr import Expr
 from lox_token import Token
@@ -18,6 +18,10 @@ class StmtVisitor(abc.ABC):
 
     @abc.abstractmethod
     def visit_decl(self, stmt: "DeclStmt") -> None:
+        pass
+
+    @abc.abstractmethod
+    def visit_block(self, stmt: "BlockStmt") -> None:
         pass
 
 
@@ -50,3 +54,11 @@ class DeclStmt(Stmt):
 
     def accept(self, stmt_visitor: StmtVisitor) -> None:
         stmt_visitor.visit_decl(self)
+
+
+@dataclass
+class BlockStmt(Stmt):
+    stmts: List[Stmt]
+
+    def accept(self, stmt_visitor: StmtVisitor) -> None:
+        stmt_visitor.visit_block(self)

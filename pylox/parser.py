@@ -11,7 +11,7 @@ from expr import (
     VarExpr,
 )
 from lox_token import Token
-from stmt import DeclStmt, ExprStmt, PrintStmt, Stmt
+from stmt import BlockStmt, DeclStmt, ExprStmt, PrintStmt, Stmt
 from token_type import TokenType
 
 
@@ -41,8 +41,18 @@ class Parser:
             return self._declaration()
         elif self._match(TokenType.PRINT):
             return self._print_stmt()
+        elif self._match(TokenType.LEFT_BRACE):
+            return self._block_stmt()
         else:
             return self._expr_stmt()
+
+    def _block_stmt(self) -> Stmt:
+        stmts = []
+        while not self._eof() and self._peek().ttype != TokenType.RIGHT_BRACE:
+            stmts.append(self._statement())
+
+        self._expect(TokenType.RIGHT_BRACE, "Expect } at the end of a block")
+        return BlockStmt(stmts=stmts)
 
     def _declaration(self) -> Stmt:
         token = self._expect(TokenType.IDENTIFIER, "expect identifier")

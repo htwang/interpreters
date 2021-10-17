@@ -14,7 +14,7 @@ from expr import (
     VarExpr,
 )
 from lox_token import Token
-from stmt import DeclStmt, ExprStmt, PrintStmt, Stmt, StmtVisitor
+from stmt import BlockStmt, DeclStmt, ExprStmt, PrintStmt, Stmt, StmtVisitor
 from token_type import TokenType
 
 
@@ -106,11 +106,23 @@ class Interpreter(ExprVisitor, StmtVisitor):
         value = None if stmt.initializer is None else self._evaluate(stmt.initializer)
         self._env.define(stmt.token.lexeme, value)
 
+    def visit_block(self, stmt: BlockStmt) -> None:
+        self._execute_block(stmt, Environment(self._env))
+
     def _evaluate(self, expr: Expr) -> Any:
         return expr.accept(self)
 
     def _execute(self, stmt: Stmt) -> None:
         stmt.accept(self)
+
+    def _execute_block(self, block: BlockStmt, env: Environment) -> None:
+        previous_env = self._env
+        try:
+            self._env = env
+            for stmt in block.stmts:
+                self._execute(stmt)
+        finally:
+            self._env = previous_env
 
     def _truthy(self, value: Any) -> bool:
         if isinstance(value, bool):
