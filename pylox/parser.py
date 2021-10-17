@@ -1,7 +1,15 @@
 from typing import List
 
 from error import report
-from expr import BinaryExpr, Expr, GroupExpr, LiteralExpr, UnaryExpr, VarExpr
+from expr import (
+    AssignExpr,
+    BinaryExpr,
+    Expr,
+    GroupExpr,
+    LiteralExpr,
+    UnaryExpr,
+    VarExpr,
+)
 from lox_token import Token
 from stmt import DeclStmt, ExprStmt, PrintStmt, Stmt
 from token_type import TokenType
@@ -56,7 +64,20 @@ class Parser:
         return ExprStmt(expr=expr)
 
     def _expression(self) -> Expr:
-        return self._equility()
+        return self._assignment()
+
+    def _assignment(self) -> Expr:
+        expr = self._equility()
+
+        if self._match(TokenType.EQUAL):
+            rvalue = self._assignment()
+
+            if isinstance(expr, VarExpr):
+                return AssignExpr(token=expr.token, expr=rvalue)
+
+            self._error("Expect var expression")
+
+        return expr
 
     def _equility(self) -> Expr:
         expr = self._comparision()
