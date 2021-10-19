@@ -28,6 +28,10 @@ class StmtVisitor(abc.ABC):
     def visit_conditional(self, stmt: "ConditionalStmt") -> None:
         pass
 
+    @abc.abstractmethod
+    def visit_while(self, stmt: "WhileStmt") -> None:
+        pass
+
 
 class Stmt(abc.ABC):
     @abc.abstractmethod
@@ -76,3 +80,12 @@ class ConditionalStmt(Stmt):
 
     def accept(self, stmt_visitor: StmtVisitor) -> None:
         stmt_visitor.visit_conditional(self)
+
+
+@dataclass
+class WhileStmt(Stmt):
+    cond: Expr
+    stmt: Stmt
+
+    def accept(self, stmt_visitor: StmtVisitor) -> None:
+        stmt_visitor.visit_while(self)

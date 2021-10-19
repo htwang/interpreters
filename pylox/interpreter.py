@@ -22,6 +22,7 @@ from stmt import (
     PrintStmt,
     Stmt,
     StmtVisitor,
+    WhileStmt,
 )
 from token_type import TokenType
 
@@ -123,6 +124,10 @@ class Interpreter(ExprVisitor, StmtVisitor):
         else:
             if stmt.falsy is not None:
                 self._execute(stmt.falsy)
+
+    def visit_while(self, stmt: WhileStmt) -> None:
+        while self._evaluate(stmt.cond):
+            self._execute(stmt.stmt)
 
     def _evaluate(self, expr: Expr) -> Any:
         return expr.accept(self)
