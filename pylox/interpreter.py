@@ -14,7 +14,15 @@ from expr import (
     VarExpr,
 )
 from lox_token import Token
-from stmt import BlockStmt, DeclStmt, ExprStmt, PrintStmt, Stmt, StmtVisitor
+from stmt import (
+    BlockStmt,
+    ConditionalStmt,
+    DeclStmt,
+    ExprStmt,
+    PrintStmt,
+    Stmt,
+    StmtVisitor,
+)
 from token_type import TokenType
 
 
@@ -108,6 +116,13 @@ class Interpreter(ExprVisitor, StmtVisitor):
 
     def visit_block(self, stmt: BlockStmt) -> None:
         self._execute_block(stmt, Environment(self._env))
+
+    def visit_conditional(self, stmt: ConditionalStmt) -> None:
+        if self._evaluate(stmt.cond):
+            self._execute(stmt.truthy)
+        else:
+            if stmt.falsy is not None:
+                self._execute(stmt.falsy)
 
     def _evaluate(self, expr: Expr) -> Any:
         return expr.accept(self)

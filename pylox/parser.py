@@ -11,7 +11,7 @@ from expr import (
     VarExpr,
 )
 from lox_token import Token
-from stmt import BlockStmt, DeclStmt, ExprStmt, PrintStmt, Stmt
+from stmt import BlockStmt, ConditionalStmt, DeclStmt, ExprStmt, PrintStmt, Stmt
 from token_type import TokenType
 
 
@@ -43,8 +43,20 @@ class Parser:
             return self._print_stmt()
         elif self._match(TokenType.LEFT_BRACE):
             return self._block_stmt()
+        elif self._match(TokenType.IF):
+            return self._conditional_stmt()
         else:
             return self._expr_stmt()
+
+    def _conditional_stmt(self) -> Stmt:
+        self._expect(TokenType.LEFT_PAREN, "Expect (")
+        expr = self._expression()
+        self._expect(TokenType.RIGHT_PAREN, "Expect )")
+
+        truthy = self._statement()
+        falsy = self._statement() if self._match(TokenType.ELSE) else None
+
+        return ConditionalStmt(cond=expr, truthy=truthy, falsy=falsy)
 
     def _block_stmt(self) -> Stmt:
         stmts = []

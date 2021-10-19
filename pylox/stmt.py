@@ -24,6 +24,10 @@ class StmtVisitor(abc.ABC):
     def visit_block(self, stmt: "BlockStmt") -> None:
         pass
 
+    @abc.abstractmethod
+    def visit_conditional(self, stmt: "ConditionalStmt") -> None:
+        pass
+
 
 class Stmt(abc.ABC):
     @abc.abstractmethod
@@ -62,3 +66,13 @@ class BlockStmt(Stmt):
 
     def accept(self, stmt_visitor: StmtVisitor) -> None:
         stmt_visitor.visit_block(self)
+
+
+@dataclass
+class ConditionalStmt(Stmt):
+    cond: Expr
+    truthy: Stmt
+    falsy: Optional[Stmt] = None
+
+    def accept(self, stmt_visitor: StmtVisitor) -> None:
+        stmt_visitor.visit_conditional(self)
