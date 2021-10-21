@@ -130,7 +130,7 @@ class Parser:
         return expr
 
     def _and(self) -> Expr:
-        expr = self._comparision()
+        expr = self._equility()
 
         while self._match(TokenType.AND):
             op = self._previous()
