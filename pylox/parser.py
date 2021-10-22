@@ -56,6 +56,8 @@ class Parser:
             return self._conditional_stmt()
         elif self._match(TokenType.WHILE):
             return self._while_stmt()
+        elif self._match(TokenType.FOR):
+            return self._for_stmt()
         else:
             return self._expr_stmt()
 
@@ -65,6 +67,34 @@ class Parser:
         self._expect(TokenType.RIGHT_PAREN, "Expect )")
         stmt = self._statement()
         return WhileStmt(cond=expr, stmt=stmt)
+
+    def _for_stmt(self) -> Stmt:
+        self._expect(TokenType.LEFT_PAREN, "Expect (")
+
+        if self._match(TokenType.SEMICOLON):
+            initializer = None
+        elif self._match(TokenType.VAR):
+            initializer = self._declaration()
+        else:
+            initializer = self._expr_stmt()
+
+        condition = None if self._peek() == TokenType.SEMICOLON else self._expression()
+        self._expect(TokenType.SEMICOLON, "Expect ;")
+        increment = (
+            None if self._peek() == TokenType.RIGHT_PAREN else self._expression()
+        )
+        self._expect(TokenType.RIGHT_PAREN, "Expect )")
+
+        body = self._statement()
+
+        if increment:
+            body = BlockStmt(stmts=[body, ExprStmt(expr=increment)])
+        condition = condition or LiteralExpr(value=True)
+        body = WhileStmt(cond=condition, stmt=body)
+        if initializer:
+            body = BlockStmt(stmts=[initializer, body])
+
+        return body
 
     def _conditional_stmt(self) -> Stmt:
         self._expect(TokenType.LEFT_PAREN, "Expect (")
