@@ -7,6 +7,7 @@ from expr import (
     Expr,
     GroupExpr,
     LiteralExpr,
+    LogicExpr,
     UnaryExpr,
     VarExpr,
 )
@@ -106,7 +107,7 @@ class Parser:
         return self._assignment()
 
     def _assignment(self) -> Expr:
-        expr = self._equility()
+        expr = self._or()
 
         if self._match(TokenType.EQUAL):
             rvalue = self._assignment()
@@ -115,6 +116,26 @@ class Parser:
                 return AssignExpr(token=expr.token, expr=rvalue)
 
             self._error("Expect var expression")
+
+        return expr
+
+    def _or(self) -> Expr:
+        expr = self._and()
+
+        while self._match(TokenType.OR):
+            op = self._previous()
+            right = self._and()
+            expr = LogicExpr(left=expr, op=op, right=right)
+
+        return expr
+
+    def _and(self) -> Expr:
+        expr = self._equility()
+
+        while self._match(TokenType.AND):
+            op = self._previous()
+            right = self._equility()
+            expr = LogicExpr(left=expr, op=op, right=right)
 
         return expr
 

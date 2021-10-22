@@ -10,6 +10,7 @@ from expr import (
     ExprVisitor,
     GroupExpr,
     LiteralExpr,
+    LogicExpr,
     UnaryExpr,
     VarExpr,
 )
@@ -64,6 +65,12 @@ class Interpreter(ExprVisitor, StmtVisitor):
             return not self._truthy(right)
         else:
             raise self._runtime_error(expr.op, f"Unsupported op {op_type}")
+
+    def visit_logic(self, expr: LogicExpr) -> Any:
+        if expr.op == TokenType.OR:
+            return self._evaluate(expr.left) or self._evaluate(expr.right)
+        else:
+            return self._evaluate(expr.left) and self._evaluate(expr.right)
 
     def visit_binary(self, expr: BinaryExpr) -> Any:
         left = self._evaluate(expr.left)

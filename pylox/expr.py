@@ -31,6 +31,10 @@ class ExprVisitor(abc.ABC):
     def visit_assign(self, expr: "AssignExpr") -> Any:
         pass
 
+    @abc.abstractmethod
+    def visit_logic(self, expr: "LogicExpr") -> Any:
+        pass
+
 
 class Expr(abc.ABC):
     @abc.abstractmethod
@@ -63,6 +67,16 @@ class BinaryExpr(Expr):
 
     def accept(self, expr_visitor: ExprVisitor) -> Any:
         return expr_visitor.visit_binary(self)
+
+
+@dataclass
+class LogicExpr(Expr):
+    left: Expr
+    op: Token
+    right: Expr
+
+    def accept(self, expr_visitor: ExprVisitor) -> Any:
+        return expr_visitor.visit_logic(self)
 
 
 @dataclass
